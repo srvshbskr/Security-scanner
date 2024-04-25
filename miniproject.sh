@@ -12,7 +12,7 @@
 # }
 scan_nmap() {
     ip=$1
-    rustscan_output=$(rustscan  -u 5000  -a "$ip")  # Scan all ports and get service version information
+    rustscan_output=$(rustscan  -u 5000  -a "$ip")
     report_filename="rustscan_report_$ip.txt"
     echo "$rustscan_output" > "$report_filename"
     echo "RustScan report saved as: $report_filename"
@@ -20,7 +20,6 @@ scan_nmap() {
     report_html="/var/www/html/rustscan_report_$ip.html"
     vulnerable_ports=$(echo "$rustscan_output" | grep -E 'Open.*(ssh|ftp)' | awk '{print $1}' FS="/" | tr '\n' ',' | sed 's/,$//')
 
-    # Create HTML report
     cat <<EOF > "$report_html"
 <!DOCTYPE html>
 <html>
@@ -66,7 +65,6 @@ scan_nmap() {
   </tr>
 EOF
 
-    # Parse RustScan output and generate HTML report
     while IFS= read -r line; do
         port=$(echo "$line" | awk '{print $1}' FS="/")
         status=$(echo "$line" | awk '{print $2}')
@@ -114,12 +112,9 @@ scan_clamav() {
     report_txt="/home/g0d/Work/clamav_report.txt"
     report_html="/var/www/html/clamav_report.html"
 
-    # Ensure directories exist, create if not
     mkdir -p "$(dirname "$report_html")"
 
-    # Start HTML report or create new if it doesn't exist
     if [ ! -f "$report_html" ]; then
-        # If HTML report doesn't exist, create a new one
         cat <<EOF > "$report_html"
 <!DOCTYPE html>
 <html>
@@ -161,11 +156,9 @@ scan_clamav() {
   </tr>
 EOF
     else
-        # If HTML report already exists, just append to it
         echo "" >> "$report_html"
     fi
 
-    # Parse ClamAV text report and append to the HTML report
     while IFS= read -r line; do
         if [[ $line == *"FOUND"* ]]; then
             file=$(echo "$line" | awk '{print $2}')
@@ -176,14 +169,12 @@ EOF
         fi
     done < "$report_txt"
 
-    # End HTML report
     cat <<EOF >> "$report_html"
 </table>
 </body>
 </html>
 EOF
 
-    # Move the HTML report to the /var/www/html directory
     mv "$report_html" /var/www/html/
 
     echo "HTML report generated and moved to /var/www/html/clamav_report.html"
