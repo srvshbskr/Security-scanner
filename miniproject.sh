@@ -1,18 +1,18 @@
 #!/bin/bash
 
 # scan_nmap() {
-#     # ip=$1
-#     # nmap_output=$(rustscan -u 5000 -a "$ip")
-#     # report_filename="nmap_report_$ip.txt"
-#     # echo "$nmap_output" > "$report_filename"
-#     # echo "Nmap report saved as: $report_filename"
+#     ip=$1
+#     nmap_output=$(rustscan -u 5000 -a "$ip")
+#     report_filename="nmap_report_$ip.txt"
+#     echo "$nmap_output" > "$report_filename"
+#     echo "Nmap report saved as: $report_filename"
 
 
     
 # }
 scan_nmap() {
     ip=$1
-    rustscan_output=$(rustscan  -u 5000  -a "$ip")
+    rustscan_output=$(rustscan  -u 5000  -a "$ip" --)
     report_filename="rustscan_report_$ip.txt"
     echo "$rustscan_output" > "$report_filename"
     echo "RustScan report saved as: $report_filename"
@@ -85,9 +85,17 @@ EOF
         fi
     done < <(echo "$rustscan_output" | grep "/tcp")
 
-    # End HTML report
     cat <<EOF >> "$report_html"
 </table>
+
+<div class=\"remedy\">
+  <h1>Remedies</h1>
+<ul>
+  <li><b>Update Software:</b> Install updates and patches for your programs.</li>
+  <li><b>Disable Unused Services:</b> Turn off any services you don't need</li>
+  <li><b> Firewalls:</b> Use firewalls to protect your network from attacks.</li>
+</ul>
+</div>
 </body>
 </html>
 EOF
@@ -152,7 +160,6 @@ scan_clamav() {
   <tr>
     <th>File</th>
     <th>Status</th>
-    <th>Time of Scan</th>
   </tr>
 EOF
     else
@@ -166,11 +173,28 @@ EOF
             echo "    <td>$file</td>" >> "$report_html"
             echo "    <td class=\"infected\">Infected</td>" >> "$report_html"
             echo "  </tr>" >> "$report_html"
+            
         fi
     done < "$report_txt"
 
     cat <<EOF >> "$report_html"
 </table>
+<div class=\"remedy\">
+  <h1>Remedies</h1>
+  <ul>
+    <li>
+      <b>Quarantine Infected Files:</b> Move any files detected as malware or suspicious to a quarantine folder to prevent them from causing harm
+    </li>
+     <li>
+       <b>Scan and Clean:</b> Run a full system scan to identify and remove any remaining malware or suspicious files.
+
+     </li> 
+     <li>
+
+      <b> Update Software:</b> Update all software on your system to the latest versions to patch any vulnerabilities that malware may have exploited.
+     </li>
+  </ul>
+  </div>
 </body>
 </html>
 EOF
